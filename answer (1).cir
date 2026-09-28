@@ -1,0 +1,29 @@
+* PM-17 Backup Power Path - Transient validation sheet
+* MAIN 5.000V source
+VMAIN MAIN 0 DC 5.0
+* BACK 4.700V source
+VBACK BACK 0 DC 4.7
+* VREF 1.360V
+VREF REF 0 DC 1.36
+* RFEED 2.000 Ohm between MAIN and OUT
+RFEED MAIN OUT 2.0
+* Q1 - voltage controlled switch BACK to OUT, RON=0.15, ROFF=100M, ON when CTL>2.5V
+S_Q1 BACK OUT CTL 0 Q1_SW
+.model Q1_SW SW(Ron=0.15 Roff=100Meg Vt=2.5 Vh=0)
+* COUT 220uF IC 4.960V
+COUT OUT 0 220u IC=4.96
+* ILOAD 20mA to 400mA linearly 1.999ms to 2.001ms
+ILOAD OUT 0 PWL(0 20m 1.999m 20m 2.001m 400m 6m 400m)
+* ACTUAL feedback divider: OUT -> R24 -> VFB -> R25 -> GND
+R24 OUT VFB 24.9k
+R25 VFB 0 10.0k
+* DECOY monitor divider: MAIN -> R17 -> VMON -> R18 -> GND (no U1 connection)
+R17 MAIN VMON 24.9k
+R18 VMON 0 10.0k
+* U1 IDEAL CONTROLLER: compares VFB with REF and drives CTL
+* U1 rule: CTL = 5V when VFB < REF; otherwise CTL = 0V. REF=1.360V
+B_U1 CTL 0 V = V(VFB) < 1.36 ? 5 : 0
+.IC V(OUT)=4.96
+.TRAN 1u 6m 0 1u UIC
+.MEAS TRAN vout_min MIN V(OUT) FROM=2m TO=3m
+.END

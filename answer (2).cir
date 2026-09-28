@@ -1,0 +1,19 @@
+* PM-17 Backup Power Path - Transient validation
+* Reference designators as on sheet
+VMAIN MAIN 0 DC 5.000
+VBACK BACK 0 DC 4.700
+VREF REF 0 DC 1.360
+RFEED MAIN OUT 2.000
+R17 MAIN VMON 24.9k
+R18 VMON 0 10.0k
+R24 OUT VFB 24.9k
+R25 VFB 0 10.0k
+COUT OUT 0 220u IC=4.960
+ILOAD OUT 0 PWL(0 20m 1.999m 20m 2.001m 400m 6m 400m)
+S_Q1 BACK OUT CTL 0 Q1MOD
+.model Q1MOD SW(RON=0.150 ROFF=100MEG VT=2.500 VH=0)
+B_U1 CTL 0 V= (V(VFB) < V(REF) ? 5 : 0)
+.IC V(OUT)=4.96
+.tran 1u 6m 0 1u UIC
+.meas tran vout_min MIN V(OUT) FROM=2m TO=3m
+.end
